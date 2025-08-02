@@ -721,7 +721,6 @@ var Region = function () {
     }, {
         key: 'onResize',
         value: function onResize(delta, direction) {
-
             if (direction == 'start') {
                 if (this.start + delta > this.end)
                 {

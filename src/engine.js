@@ -3,8 +3,6 @@
 
 	function PKEng ( app ) {
 		var q = this;
-
-		q.timeStamps = [];
 		
 		var wavesurfer = WaveSurfer.create ({
 			container: '#' + 'pk_av_' + app.id,
@@ -372,6 +370,7 @@
 		}
 
 		app.listenFor ('RequestResize', function () {
+			console.log ('RequestResize');
 			wavesurfer.fireEvent ('resize');
 
 			var h = window.innerHeight;
@@ -485,10 +484,12 @@
 			}
 		});
 
-		app.listenFor('AddTimeStamp', function () {
+		app.listenFor('AddMyTimeStamp', function () {
 			console.log ('Adding time stamp');
-			q.timeStamps.push(wavesurfer.getCurrentTime());
-			console.log ('Time stamps: ', q.timeStamps);
+			var timeStamp = wavesurfer.insertMyTimeStamp();
+			wavesurfer.drawer.insertMyTimeStamp(timeStamp.name);
+			console.log ('Time stamps: ', wavesurfer.myTimeStamps);
+			wavesurfer.fireEvent('redraw');
 		});
 
 		app.listenFor ('RequestPause', function () {
@@ -573,7 +574,7 @@
 			console.log ('KeyA');
 			if (app.ui.InteractionHandler.on) return ;
 			e.preventDefault();
-			app.fireEvent ('AddTimeStamp');
+			app.fireEvent ('AddMyTimeStamp');
 		}, 97);
 
 		app.ui.KeyHandler.addCallback ('kF12', function ( k, i, e ) {
@@ -2849,6 +2850,7 @@
 
 
 		app.listenFor ('RequestZoomUI', function (type, val) {
+			console.log( 'RequestZoomUI', type, val );
 			if (!q.is_ready) return ;
 
 			if (type === 0) {
