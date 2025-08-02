@@ -318,6 +318,49 @@
 							app.fireEvent ('RequestLoadLocalFile');
 						}
 					},
+
+					{
+						name: 'Save as csv file',
+						type: 'file',
+						action: function (e) {
+							var timeStamps = app.engine.wavesurfer.getTimeStamps();
+							console.log('Time stamps: ', timeStamps);
+
+							console.log('Saving CSV file');
+
+							if (!Array.isArray(timeStamps) || timeStamps.length === 0) {
+								console.warn('No timestamps to save.');
+								return;
+							}
+
+							// Convert to CSV string
+							// Assuming timeStamps is an array of numbers or objects with time fields
+							let csvContent = 'Timestamp\n'; // CSV header
+
+							timeStamps.forEach(ts => {
+								if (typeof ts === 'object' && ts.position !== undefined) {
+									csvContent += ts.position + '\n';
+								} else {
+									csvContent += ts + '\n';
+								}
+							});
+
+							// Create a blob and trigger download
+							const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+							const url = URL.createObjectURL(blob);
+							const link = document.createElement('a');
+							link.href = url;
+							link.download = 'timestamps.csv';
+							link.style.display = 'none';
+
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+
+							// Clean up
+							URL.revokeObjectURL(url);
+						}
+					},
 					
 					{
 						name: 'Load Sample File',

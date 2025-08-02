@@ -3760,6 +3760,8 @@ var WaveSurfer = function (_util$Observer) {
 
         _this.myTimeStamps = [];
 
+
+
         _this.backends = {
             MediaElement: _mediaelement2.default,
             WebAudio: _webaudio2.default
@@ -4541,6 +4543,20 @@ var WaveSurfer = function (_util$Observer) {
         key: 'getCurrentTime',
         value: function getCurrentTime() {
             return this.backend.getCurrentTime();
+        }
+
+        /**
+         * Set the current play time in seconds.
+         *
+         * @param {number} seconds A positive number in seconds. E.g. 10 means 10
+         * seconds, 60 means 1 minute
+         */
+
+    },
+     {
+        key: 'getTimeStamps',
+        value: function getTimeStamps() {
+            return this.myTimeStamps;
         }
 
         /**
