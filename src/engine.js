@@ -3,6 +3,8 @@
 
 	function PKEng ( app ) {
 		var q = this;
+
+		q.timeStamps = [];
 		
 		var wavesurfer = WaveSurfer.create ({
 			container: '#' + 'pk_av_' + app.id,
@@ -482,6 +484,13 @@
 				}
 			}
 		});
+
+		app.listenFor('AddTimeStamp', function () {
+			console.log ('Adding time stamp');
+			q.timeStamps.push(wavesurfer.getCurrentTime());
+			console.log ('Time stamps: ', q.timeStamps);
+		});
+
 		app.listenFor ('RequestPause', function () {
 			app.fireEvent ('RequestActionRecordStop');
 			wavesurfer.pause();
@@ -560,6 +569,12 @@
 			app.fireEvent ('RequestDeselect');
 		}, 113);
 
+		app.ui.KeyHandler.addSingleCallback ('KeyA', function ( e ) {
+			console.log ('KeyA');
+			if (app.ui.InteractionHandler.on) return ;
+			e.preventDefault();
+			app.fireEvent ('AddTimeStamp');
+		}, 97);
 
 		app.ui.KeyHandler.addCallback ('kF12', function ( k, i, e ) {
 			e.preventDefault();
@@ -588,6 +603,7 @@
 				app.fireEvent ('RequestPlay');
 			}
 		}, [32]);
+		
 		app.ui.KeyHandler.addCallback ('KeyShiftCopy' + app.id, function ( key ) {
 			if (app.ui.InteractionHandler.on) return ;
 			
