@@ -1075,7 +1075,6 @@ var _colorMap = [[0,0,0,1],[0.011764705882352941,0,0,1],[0.023529411764705882,0,
     },{
         key: 'progress',
         value: function progress(_progress, left_offset, zoom_factor, myTimeStamps) {
-            console.log('progress', _progress, left_offset, zoom_factor, myTimeStamps);
             if (_progress == 0) {
                 this.updateProgress(-1);
                 return;
@@ -1293,6 +1292,14 @@ var MultiCanvas = function (_Drawer) {
             var position = document.getElementById('pk_prgwv').style.transform;
             timeStampDiv.style.transform = 'translate3d('+position+',0,0)';
             this.wrapper.appendChild(timeStampDiv);
+        };
+
+        _this.deleteMyTimeStamp = function deleteMyTimeStamp(name) {
+            console.log('deleting timestamp div');
+            console.log('name', name);
+            var timeStampDiv= document.getElementById("timeStamp" + name.toString());
+            console.log('deleting timestamp div', timeStampDiv);
+            this.wrapper.removeChild(timeStampDiv);
         };
         
         _this.maxCanvasWidth = params.maxCanvasWidth;
@@ -4637,6 +4644,29 @@ var WaveSurfer = function (_util$Observer) {
             var timeStamp = { position: this.getCurrentTime(), name: name, procent: procent };
             this.myTimeStamps.push(timeStamp);
             return timeStamp;
+        }
+    }, {
+    }, {
+        key: 'deleteMyTimeStamp',
+        value: function deleteMyTimeStamp() {
+            if (this.myTimeStamps.length === 0)
+                return null;
+            var timeStampMin = this.myTimeStamps[0];
+            var currentTime = this.getCurrentTime();
+            var minTime = Math.abs(timeStampMin.position - currentTime);
+
+            this.myTimeStamps.forEach(function (item) {
+                console.log(item);
+                var time = Math.abs(item.position - currentTime);
+                if (time < minTime) {
+                    minTime = time;
+                    timeStampMin = item;
+                }
+            });
+            this.myTimeStamps = this.myTimeStamps.filter(function (item) {
+                return item.name !== timeStampMin.name;
+            });
+            return timeStampMin;
         }
     }, {
         key: 'skipBackward',

@@ -489,7 +489,13 @@
 			var timeStamp = wavesurfer.insertMyTimeStamp();
 			wavesurfer.drawer.insertMyTimeStamp(timeStamp.name);
 			console.log ('Time stamps: ', wavesurfer.myTimeStamps);
-			wavesurfer.fireEvent('redraw');
+		});
+
+		app.listenFor('DeleteMyTimeStamp', function () {
+			console.log ('Deleting time stamp');
+			var timeStamp = wavesurfer.deleteMyTimeStamp();
+			wavesurfer.drawer.deleteMyTimeStamp(timeStamp.name);
+			console.log ('Time stamps: ', wavesurfer.myTimeStamps);
 		});
 
 		app.listenFor ('RequestPause', function () {
@@ -576,6 +582,13 @@
 			e.preventDefault();
 			app.fireEvent ('AddMyTimeStamp');
 		}, 97);
+
+		app.ui.KeyHandler.addSingleCallback ('KeyD', function ( e ) {
+			console.log ('KeyD');
+			if (app.ui.InteractionHandler.on) return ;
+			e.preventDefault();
+			app.fireEvent ('DeleteMyTimeStamp');
+		}, 100);
 
 		app.ui.KeyHandler.addCallback ('kF12', function ( k, i, e ) {
 			e.preventDefault();
