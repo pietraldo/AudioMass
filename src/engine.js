@@ -255,25 +255,9 @@
 
 			app.fireEvent ('WillDownloadFile');
 			
-			setTimeout(function () {
-
-				app.listenFor ('RequestCancelModal', function() {
-					if (wavesurfer.cancelAjax ())
-					{
-						if (wavesurfer.arraybuffer) q.is_ready = true;
-
-						app.fireEvent ('RequestResize');
-						setTimeout(function() { app.fireEvent ('DidDownloadFile'); }, 12);
-						app.stopListeningForName ('RequestCancelModal');
-
-						OneUp ('Canceled Loading', 1380);
-					}
-				});
-
-				app.fireEvent ('RequestZoomUI', 0);
-				q.is_ready = false;
-				wavesurfer.load ('test.mp3');
-			}, 180);
+			app.fireEvent ('RequestZoomUI', 0);
+			q.is_ready = false;
+			wavesurfer.load ('Oliver Tree & Robin Schulz - Miss You [Official Music Video].mp3');
 		}
 		this.LoadURL = function ( url ) {
 			app.fireEvent ('WillDownloadFile');
