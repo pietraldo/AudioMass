@@ -1290,6 +1290,8 @@ var MultiCanvas = function (_Drawer) {
             var timeStampDiv = document.createElement('div');
             timeStampDiv.className = 'pk_wave_timestamp';
             timeStampDiv.id = 'timeStamp' + name.toString();
+            var position = document.getElementById('pk_prgwv').style.transform;
+            timeStampDiv.style.transform = 'translate3d('+position+',0,0)';
             this.wrapper.appendChild(timeStampDiv);
         };
         
