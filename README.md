@@ -14,7 +14,10 @@ Live: [https://audiomass.co](https://audiomass.co)
 
 ...
 
-
+## Added functions:
+- marking timeline: "a"
+- deleting timeline "d"
+- you can also export time line to csv file
 
 ---
 
