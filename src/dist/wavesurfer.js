@@ -1062,30 +1062,31 @@ var _colorMap = [[0,0,0,1],[0.011764705882352941,0,0,1],[0.023529411764705882,0,
          * @param {number} progress From 0 to 1
          */
 
-    }, {
-        key: 'progress',
-        value: function progress(_progress, left_offset, zoom_factor) {
+    }, 
+    {
+        key: 'calculateProgress',
+        value: function calculateProgress(_progress, left_offset, zoom_factor) {
+            _progress = (_progress - left_offset) * zoom_factor;
 
+            var minPxDelta = 1 / this.params.pixelRatio;
+            var pos = Math.round(_progress * this.width) * minPxDelta;
+            return pos;
+        }
+    },{
+        key: 'progress',
+        value: function progress(_progress, left_offset, zoom_factor, myTimeStamps) {
             if (_progress == 0) {
                 this.updateProgress(-1);
                 return;
             }
 
-            _progress = (_progress - left_offset) * zoom_factor;
+            this.updateProgress(this.calculateProgress(_progress, left_offset, zoom_factor));
 
-            var minPxDelta = 1 / this.params.pixelRatio;
-            var pos = Math.round(_progress * this.width) * minPxDelta;
-
-            //        if (pos < this.lastPos || pos - this.lastPos >= minPxDelta) {
-            //            this.lastPos = pos;
-
-            //            if (this.params.scrollParent && this.params.autoCenter) {
-            //                const newPos = ~~(this.wrapper.scrollWidth * progress);
-            //                this.recenterOnPosition(newPos);
-            //            }
-
-            this.updateProgress(pos);
-            //        }
+            for (var i = 0; i < myTimeStamps.length; i++) {
+                var timeStamp = myTimeStamps[i];
+                var position = this.calculateProgress(timeStamp.procent, left_offset, zoom_factor);
+                document.getElementById('timeStamp' + timeStamp.name.toString()).style.transform = 'translate3d(' + position + 'px,0,0)';
+            }
         }
 
         /**
@@ -1283,6 +1284,24 @@ var MultiCanvas = function (_Drawer) {
          */
         var _this = _possibleConstructorReturn(this, (MultiCanvas.__proto__ || Object.getPrototypeOf(MultiCanvas)).call(this, container, params));
 
+        _this.insertMyTimeStamp = function insertMyTimeStamp(name) {
+            console.log('inserting new timestamp div');
+            var timeStampDiv = document.createElement('div');
+            timeStampDiv.className = 'pk_wave_timestamp';
+            timeStampDiv.id = 'timeStamp' + name.toString();
+            var position = document.getElementById('pk_prgwv').style.transform;
+            timeStampDiv.style.transform = 'translate3d('+position+',0,0)';
+            this.wrapper.appendChild(timeStampDiv);
+        };
+
+        _this.deleteMyTimeStamp = function deleteMyTimeStamp(name) {
+            console.log('deleting timestamp div');
+            console.log('name', name);
+            var timeStampDiv= document.getElementById("timeStamp" + name.toString());
+            console.log('deleting timestamp div', timeStampDiv);
+            this.wrapper.removeChild(timeStampDiv);
+        };
+        
         _this.maxCanvasWidth = params.maxCanvasWidth;
         /**
          * @private
@@ -1356,7 +1375,7 @@ var MultiCanvas = function (_Drawer) {
             this.CursorMarker.className = 'pk_wave_cursor';
             this.wrapper.appendChild(this.CursorMarker);
 
-            // this.updateCursor();
+            this.updateCursor();
         }
 
         /**
@@ -2136,11 +2155,14 @@ var MultiCanvas = function (_Drawer) {
     }, {
         key: 'updateProgress',
         value: function updateProgress(position) {
-            // this.progressWave.style.left = position + 'px';
+            //this.progressWave.style.left = position + 'px';
             this.progressWave.style.transform = 'translate3d(' + position + 'px,0,0)';
             // this.style(this.progressWave, { left: position + 'px' });
         }
     }]);
+
+    
+    
 
     return MultiCanvas;
 }(_drawer2.default);
@@ -3735,6 +3757,11 @@ var WaveSurfer = function (_util$Observer) {
             timeline:1,
             verticalZoom:1
         };
+
+        _this.myTimeStamps = [];
+
+
+
         _this.backends = {
             MediaElement: _mediaelement2.default,
             WebAudio: _webaudio2.default
@@ -3832,10 +3859,11 @@ var WaveSurfer = function (_util$Observer) {
         // timeout for the debounce function.
         var prevWidth = 0;
         _this._onResize = util.debounce(function () {
-            if (prevWidth != _this.drawer.wrapper.clientWidth && !_this.params.scrollParent) {
-                prevWidth = _this.drawer.wrapper.clientWidth;
-                _this.drawer.fireEvent('redraw');
-            }
+            console.log('WaveSurfer: Resize event triggered');
+            // if (prevWidth != _this.drawer.wrapper.clientWidth && !_this.params.scrollParent) {
+            //     prevWidth = _this.drawer.wrapper.clientWidth;
+            //     _this.drawer.fireEvent('redraw');
+            // }
         }, typeof _this.params.responsive === 'number' ? _this.params.responsive : 100);
 
         // non-active cursor (in seconds)
@@ -4064,7 +4092,7 @@ var WaveSurfer = function (_util$Observer) {
 
             this.drawer.on('redraw', function () {
                 _this5.drawBuffer();
-                _this5.drawer.progress(_this5.backend.getPlayedPercents(), _this5.LeftProgress / _this5.getDuration(), _this5.ZoomFactor);
+                _this5.drawer.progress(_this5.backend.getPlayedPercents(), _this5.LeftProgress / _this5.getDuration(), _this5.ZoomFactor, _this5.myTimeStamps);
             });
 
             // Click-to-seek
@@ -4318,7 +4346,7 @@ var WaveSurfer = function (_util$Observer) {
             //}
 
             // this.drawer.CursorMarker.style.left =  sleft;
-            this.drawer.progress(percent, left_offset, this.ZoomFactor);
+            this.drawer.progress(percent, left_offset, this.ZoomFactor, this.myTimeStamps);
         }
     },
 
@@ -4346,7 +4374,7 @@ var WaveSurfer = function (_util$Observer) {
             //this.drawer.CursorMarker.style.transform = 'translate(' + pos + 'px,0)';
 
            // this.drawer.ZMarker.style.left = (this.ActiveMarker  * 100) + '%';
-            this.drawer.progress(percent, left_offset, this.ZoomFactor);
+            this.drawer.progress(percent, left_offset, this.ZoomFactor, this.myTimeStamps);
         }
 
         /**
@@ -4463,14 +4491,14 @@ var WaveSurfer = function (_util$Observer) {
                         }
                         else
                         {
-                            q.drawer.progress(percentage, q.LeftProgress / q.getDuration(), q.ZoomFactor);
+                            q.drawer.progress(percentage, q.LeftProgress / q.getDuration(), q.ZoomFactor, q.myTimeStamps);
                         }
                     }
                     // -
                 }
                 else
                 {
-                    q.drawer.progress(percentage, q.LeftProgress / q.getDuration(), q.ZoomFactor);
+                    q.drawer.progress(percentage, q.LeftProgress / q.getDuration(), q.ZoomFactor, q.myTimeStamps);
                 }
 
                 q.fireEvent ('audioprocess', time, stamp);
@@ -4515,6 +4543,20 @@ var WaveSurfer = function (_util$Observer) {
         key: 'getCurrentTime',
         value: function getCurrentTime() {
             return this.backend.getCurrentTime();
+        }
+
+        /**
+         * Set the current play time in seconds.
+         *
+         * @param {number} seconds A positive number in seconds. E.g. 10 means 10
+         * seconds, 60 means 1 minute
+         */
+
+    },
+     {
+        key: 'getTimeStamps',
+        value: function getTimeStamps() {
+            return this.myTimeStamps;
         }
 
         /**
@@ -4607,6 +4649,41 @@ var WaveSurfer = function (_util$Observer) {
          * @example wavesurfer.skipBackward();
          */
 
+    }, {
+        key: 'insertMyTimeStamp',
+        value: function insertMyTimeStamp() {
+            var name=1;
+            if(this.myTimeStamps.length > 0) {
+                name = this.myTimeStamps[this.myTimeStamps.length - 1].name + 1;
+            }
+            var procent = this.getCurrentTime() / this.getDuration();
+            var timeStamp = { position: this.getCurrentTime(), name: name, procent: procent };
+            this.myTimeStamps.push(timeStamp);
+            return timeStamp;
+        }
+    }, {
+    }, {
+        key: 'deleteMyTimeStamp',
+        value: function deleteMyTimeStamp() {
+            if (this.myTimeStamps.length === 0)
+                return null;
+            var timeStampMin = this.myTimeStamps[0];
+            var currentTime = this.getCurrentTime();
+            var minTime = Math.abs(timeStampMin.position - currentTime);
+
+            this.myTimeStamps.forEach(function (item) {
+                console.log(item);
+                var time = Math.abs(item.position - currentTime);
+                if (time < minTime) {
+                    minTime = time;
+                    timeStampMin = item;
+                }
+            });
+            this.myTimeStamps = this.myTimeStamps.filter(function (item) {
+                return item.name !== timeStampMin.name;
+            });
+            return timeStampMin;
+        }
     }, {
         key: 'skipBackward',
         value: function skipBackward(seconds) {
@@ -4713,7 +4790,7 @@ var WaveSurfer = function (_util$Observer) {
 
                 //var rend_progress2 = (progress - left_offset);
                 //this.drawer.ZMarker.style.left = progress * 100 + '%';
-                this.drawer.progress(progress, left_offset, this.ZoomFactor);
+                this.drawer.progress(progress, left_offset, this.ZoomFactor, this.myTimeStamps);
             } else {
 
                 var left_offset = this.LeftProgress / duration;
@@ -4759,7 +4836,7 @@ var WaveSurfer = function (_util$Observer) {
             this.pause();
             this.seekTo(this.ActiveMarker, window.performance.now() + 100);
 
-            this.drawer.progress(this.ActiveMarker, this.LeftProgress / this.getDuration(), this.ZoomFactor);
+            this.drawer.progress(this.ActiveMarker, this.LeftProgress / this.getDuration(), this.ZoomFactor, this.myTimeStamps);
         }
 
         /**

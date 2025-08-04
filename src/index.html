@@ -61,12 +61,16 @@
 	<script src="multitrack-ui.js"></script>
 -->
 	<script>
+		window.onload = function(){
+			PKAudioEditor.engine.LoadSample();
+		};
 		var editor = PKAudioEditor.init ('app');
 		if ('serviceWorker' in navigator) {
 			try {
 			//	navigator.serviceWorker.register( 'sw.js' );
 			} catch ( error ) {}
 		}
+		
 	</script>
 </body>
 </html>

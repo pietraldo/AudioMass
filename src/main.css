@@ -1090,6 +1090,20 @@ a{cursor:pointer;color:#99c2c6;-webkit-tap-highlight-color:rgba(0,0,0,0)}
 	pointer-events:none;
 	border-right:1px dashed gold;
 	transform:translate3d(0,0,0);
+	display: none;
+}
+
+.pk_wave_timestamp{
+	position:absolute;
+	left:0;
+	top:0;
+	z-index:5;
+	margin-left: -2px;
+	bottom:0;
+	width:1px;
+	pointer-events:none;
+	border-right:1px dashed lightgreen;
+	transform:translate3d(0,0,0);
 }
 
 .pk_row{

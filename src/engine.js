@@ -255,25 +255,9 @@
 
 			app.fireEvent ('WillDownloadFile');
 			
-			setTimeout(function () {
-
-				app.listenFor ('RequestCancelModal', function() {
-					if (wavesurfer.cancelAjax ())
-					{
-						if (wavesurfer.arraybuffer) q.is_ready = true;
-
-						app.fireEvent ('RequestResize');
-						setTimeout(function() { app.fireEvent ('DidDownloadFile'); }, 12);
-						app.stopListeningForName ('RequestCancelModal');
-
-						OneUp ('Canceled Loading', 1380);
-					}
-				});
-
-				app.fireEvent ('RequestZoomUI', 0);
-				q.is_ready = false;
-				wavesurfer.load ('test.mp3');
-			}, 180);
+			app.fireEvent ('RequestZoomUI', 0);
+			q.is_ready = false;
+			wavesurfer.load ('Oliver Tree & Robin Schulz - Miss You [Official Music Video].mp3');
 		}
 		this.LoadURL = function ( url ) {
 			app.fireEvent ('WillDownloadFile');
@@ -386,6 +370,7 @@
 		}
 
 		app.listenFor ('RequestResize', function () {
+			console.log ('RequestResize');
 			wavesurfer.fireEvent ('resize');
 
 			var h = window.innerHeight;
@@ -498,6 +483,21 @@
 				}
 			}
 		});
+
+		app.listenFor('AddMyTimeStamp', function () {
+			console.log ('Adding time stamp');
+			var timeStamp = wavesurfer.insertMyTimeStamp();
+			wavesurfer.drawer.insertMyTimeStamp(timeStamp.name);
+			console.log ('Time stamps: ', wavesurfer.myTimeStamps);
+		});
+
+		app.listenFor('DeleteMyTimeStamp', function () {
+			console.log ('Deleting time stamp');
+			var timeStamp = wavesurfer.deleteMyTimeStamp();
+			wavesurfer.drawer.deleteMyTimeStamp(timeStamp.name);
+			console.log ('Time stamps: ', wavesurfer.myTimeStamps);
+		});
+
 		app.listenFor ('RequestPause', function () {
 			app.fireEvent ('RequestActionRecordStop');
 			wavesurfer.pause();
@@ -576,6 +576,19 @@
 			app.fireEvent ('RequestDeselect');
 		}, 113);
 
+		app.ui.KeyHandler.addSingleCallback ('KeyA', function ( e ) {
+			console.log ('KeyA');
+			if (app.ui.InteractionHandler.on) return ;
+			e.preventDefault();
+			app.fireEvent ('AddMyTimeStamp');
+		}, 97);
+
+		app.ui.KeyHandler.addSingleCallback ('KeyD', function ( e ) {
+			console.log ('KeyD');
+			if (app.ui.InteractionHandler.on) return ;
+			e.preventDefault();
+			app.fireEvent ('DeleteMyTimeStamp');
+		}, 100);
 
 		app.ui.KeyHandler.addCallback ('kF12', function ( k, i, e ) {
 			e.preventDefault();
@@ -604,6 +617,7 @@
 				app.fireEvent ('RequestPlay');
 			}
 		}, [32]);
+		
 		app.ui.KeyHandler.addCallback ('KeyShiftCopy' + app.id, function ( key ) {
 			if (app.ui.InteractionHandler.on) return ;
 			
@@ -2849,6 +2863,7 @@
 
 
 		app.listenFor ('RequestZoomUI', function (type, val) {
+			console.log( 'RequestZoomUI', type, val );
 			if (!q.is_ready) return ;
 
 			if (type === 0) {
