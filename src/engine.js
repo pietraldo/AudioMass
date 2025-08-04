@@ -257,7 +257,7 @@
 			
 			app.fireEvent ('RequestZoomUI', 0);
 			q.is_ready = false;
-			wavesurfer.load ('Oliver Tree & Robin Schulz - Miss You [Official Music Video].mp3');
+			wavesurfer.load ('./sample_music.mp3');
 		}
 		this.LoadURL = function ( url ) {
 			app.fireEvent ('WillDownloadFile');
